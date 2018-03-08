@@ -21,7 +21,7 @@ public class NIOServer {
 	
 	public void initServer(int port){
 		try {
-			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
+			ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();//serverSocketChannel相当于一个大的池子，等待这连接的到来，连接会产生一个socketchannel，并接受selector的监听
 			serverSocketChannel.bind(new InetSocketAddress(port));
 			serverSocketChannel.configureBlocking(false);
 			selector = Selector.open();
