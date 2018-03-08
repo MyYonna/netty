@@ -2,7 +2,6 @@ package zookeeper.NoBlockingIO;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -10,7 +9,12 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
-
+/**
+ * 为何回事非阻塞呢，因为相对于阻塞io而言，阻塞IO在对sokct进行输入和读写时，整个线程是阻塞的，（可以通过多线程解决，但是连接太多会产生大量多线程，会造成资源的大量浪费），而非阻塞IO的重点在于当内核数据准备完毕之后才会通知channel进行数据读取，并不会需要等待内核将数据准备完毕。
+ * 当内核将数据准备完毕后，会在channel的监听器selector中添加事件，而selector存在事件之后，会结束阻塞状态，对应事件的channel则可以读取或者写入数据了。
+ * @author Administrator
+ *
+ */
 public class NIOServer {
 	
 	Selector selector;//Channel监视器，用于监听一个或者多个channel上的事件，channel必须事先注册在selector上
