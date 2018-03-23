@@ -16,7 +16,7 @@ import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.handler.logging.LoggingHandler;
 /**
- * netty使用protobuf，需要事先准备好protobuf的编译器以及protobuf的java库（生成的类文件依赖于这个库）。然后编写idl文件，利用编译器生成指定语言的代码，
+ * netty使用protobuf，需要事先准备好protobuf的编译器以及protobuf的java库（生成的类文件依赖于这个库）。然后编写idl文件，利用编译器生成指定语言的代码，其中在protobuf-java的包中有对IDL文件的描述，可以进行参考
  * netty中利用protobuf进行序列化和反序列化因为只能指定一种消息类型，所以需要在消息中指定一个枚举，然后利用oneof关键字，利用硬编码的方式将枚举值与特定的消息类型进行对应
  * @author Administrator
  *
