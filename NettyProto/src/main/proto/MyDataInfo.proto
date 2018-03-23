@@ -1,0 +1,38 @@
+syntax = "proto2";
+
+package com.roc.netty.proto;
+
+option java_package = "com.roc.netty.NettyProto";
+option java_outer_classname = "MyDataInfo";
+
+message Animal{
+	 enum AnimalType {
+		PERSON = 1;
+		DOG = 2;
+		CAT = 3;
+	 }
+
+ 	 required AnimalType animal_type = 1;
+	 oneof which{
+		Person person = 2;
+		Dog dog = 3;
+		Cat cat = 4;
+	}
+}
+message Person{
+	optional int32 id = 1;
+	optional string name = 2;
+	optional string address = 3;
+}
+
+message Dog{
+	optional int32 id = 1;
+	optional string name = 2;
+	optional int32 length = 3;
+}
+
+message Cat{
+	optional int32 id = 1;
+	optional string name = 2;
+	optional string color = 3;
+}
