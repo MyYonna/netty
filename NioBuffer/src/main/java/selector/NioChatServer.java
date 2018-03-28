@@ -1,5 +1,6 @@
 package selector;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -56,27 +57,44 @@ public class NioChatServer {
 					//因为我们这次响应的是一个read事件，所以对应的channel就是我们注册的SocketChannel
 					SocketChannel socketChannel = (SocketChannel)selectionKey.channel();
 					ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
-					socketChannel.read(byteBuffer);
-					//对buffer中的数据进行读取一定要记得进行flip,解码也是一个道理，也需要从中读取数据
-					byteBuffer.flip();
-					String sendClientId = null;
-					for(Entry<String, SocketChannel> entry:clientMap.entrySet()){
-						if(entry.getValue() == socketChannel){
-							sendClientId = entry.getKey();
+					String message = "";
+					try{
+						socketChannel.read(byteBuffer);
+						//对buffer中的数据进行读取一定要记得进行flip,解码也是一个道理，也需要从中读取数据
+						byteBuffer.flip();
+						String sendClientId = null;
+						for(Entry<String, SocketChannel> entry:clientMap.entrySet()){
+							if(entry.getValue() == socketChannel){
+								sendClientId = entry.getKey();
+							}
+						}
+						//利用charset对字节码进行解码成utf-8的字符
+						Charset charset = Charset.forName("utf-8");
+					    message = sendClientId+":"+String.valueOf(charset.decode(byteBuffer).array());
+						
+					}catch(IOException e){
+						//先将此客户单从客户端列表中删除，然后将这个消息发送给其他客户端
+						String clientId = "";
+						for(Entry<String, SocketChannel> entry:clientMap.entrySet()){
+							if(entry.getValue() == socketChannel){
+								message = "客户端"+entry.getKey()+"断开连接了。。。。。";
+								clientId = entry.getKey();
+							}
+						}
+						clientMap.remove(clientId);
+						socketChannel.close();
+					}finally{
+						System.out.println(message);
+						//重新对byteBuffer进行清空
+						byteBuffer.clear();
+						byteBuffer.put(message.getBytes());
+						for(Entry<String, SocketChannel> entry:clientMap.entrySet()){
+							SocketChannel channel = entry.getValue();
+							byteBuffer.flip();
+							channel.write(byteBuffer);
 						}
 					}
-					//利用charset对字节码进行解码成utf-8的字符
-					Charset charset = Charset.forName("utf-8");
-					String message = sendClientId+":"+String.valueOf(charset.decode(byteBuffer).array());
-					System.out.println("服务端收到客户端"+sendClientId+"的消息:"+message);
-					//重新对byteBuffer进行清空
-					byteBuffer.clear();
-					byteBuffer.put(message.getBytes());
-					for(Entry<String, SocketChannel> entry:clientMap.entrySet()){
-						SocketChannel channel = entry.getValue();
-						byteBuffer.flip();
-						channel.write(byteBuffer);
-					}
+
 				}
 			}
 			//循环完此次的keys之后，一定要清除selected-key中的key,否则会出异常
@@ -84,5 +102,6 @@ public class NioChatServer {
 		}
 		
 	}
+	
 
 }
